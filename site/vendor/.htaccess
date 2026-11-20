@@ -1,0 +1,6 @@
+# 크고 잘 바뀌지 않는 라이브러리·데이터: 30일 캐시 (바꿀 때는 sw.js 버전도 올릴 것)
+<IfModule mod_headers.c>
+<FilesMatch "\.(js|gz|wasm|traineddata)$">
+Header set Cache-Control "public, max-age=2592000"
+</FilesMatch>
+</IfModule>

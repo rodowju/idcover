@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 이 페이지는 같은 주소의 파일만 불러오고(self), 어떤 외부 주소로도 데이터를 보낼 수 없게 막습니다. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'none'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#1f2937">
+<title>신분증 번호 가리기</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>신분증 주민번호 뒷자리 가리기</h1>
+  <p class="sub">사진은 이 기기 안에서 처리되며, 이 사이트는 사진을 받거나 저장하지 않습니다.</p>
+  <div class="status-row">
+    <span id="netStatus" class="pill">연결 상태 확인 중</span>
+    <span id="offlineStatus" class="pill">오프라인 준비 중</span>
+  </div>
+  <p class="tip">위의 "오프라인 사용 준비됨" 표시가 뜬 뒤에는 인터넷을 꺼도 작동하도록 만들었습니다. <b>비행기 모드로 켜고 써 보시면</b> 직접 확인할 수 있습니다.</p>
+</header>
+
+<main>
+  <!-- 1단계: 사진 고르기 -->
+  <section id="stepPick" class="step">
+    <h2><span class="num">1</span> 신분증 사진 고르기</h2>
+    <div class="pick-buttons">
+      <label class="btn primary big">
+        카메라로 찍기
+        <input id="inCamera" type="file" accept="image/*" capture="environment" hidden>
+      </label>
+      <label class="btn big">
+        사진첩에서 고르기
+        <input id="inGallery" type="file" accept="image/*" hidden>
+      </label>
+    </div>
+    <p class="hint">주민등록증, 운전면허증, 외국인등록증 사진에 쓸 수 있습니다. 자동 인식은 사진 상태에 따라 실패할 수 있습니다.</p>
+  </section>
+
+  <!-- 2단계: 가리기 편집 -->
+  <section id="stepEdit" class="step" hidden>
+    <h2><span class="num">2</span> 가릴 곳 확인하기</h2>
+    <div id="ocrBox" class="ocr-box">
+      <div id="ocrMsg">번호를 찾는 중입니다…</div>
+      <div class="bar"><div id="ocrBar"></div></div>
+    </div>
+    <div id="detectMsg" class="detect-msg" hidden></div>
+
+    <div class="canvas-wrap">
+      <canvas id="editCanvas"></canvas>
+    </div>
+    <p class="hint">검은 칸을 끌어서 옮기고, 모서리의 동그라미를 끌어서 크기를 바꿉니다. 빈 곳을 손가락으로 그으면 새 칸이 생깁니다.</p>
+
+    <div class="tool-title">가림 범위 고르기</div>
+    <p class="hint scope-note">주민번호를 어디까지 가려야 하는지 정한 공식 기준은 확인되지 않습니다. 제출처가 요구하는 범위를 확인해 고르시고, 잘 모르시면 "7자리 전부"를 고르세요.</p>
+    <div class="scopes" role="radiogroup" aria-label="가림 범위">
+      <button class="btn small scope" data-scope="rrn6" role="radio" aria-checked="false">뒷자리 6자리<br><small>(성별 숫자 남김)</small></button>
+      <button class="btn small scope active" data-scope="rrn7" role="radio" aria-checked="true">뒷자리 7자리 전부</button>
+      <button class="btn small scope" data-scope="addr" role="radio" aria-checked="false">뒷자리 + 주소</button>
+      <button class="btn small scope" data-scope="all" role="radio" aria-checked="false">뒷자리 + 주소 + 발급일 + 사진</button>
+    </div>
+    <p class="hint">범위를 고르면 칸 위치를 제안합니다. 제안은 틀릴 수 있으니 칸이 제자리에 있는지 꼭 확인하고 옮겨 주세요.</p>
+    <div id="scopeMsg" class="pending" hidden></div>
+
+    <div class="tool-title">더 가리기 (버튼을 누른 뒤 사진에서 그 자리를 누르세요)</div>
+    <div class="tools">
+      <button class="btn small" data-preset="rrn">주민번호</button>
+      <button class="btn small" data-preset="address">주소</button>
+      <button class="btn small" data-preset="date">발급일</button>
+      <button class="btn small" data-preset="license">면허번호</button>
+      <button class="btn small" data-preset="face">얼굴 사진</button>
+      <button class="btn small" data-preset="free">빈 칸</button>
+    </div>
+    <div id="pendingMsg" class="pending" hidden></div>
+    <div class="tools">
+      <button id="btnDelete" class="btn small danger" disabled>선택한 칸 지우기</button>
+      <button id="btnRotate" class="btn small">사진 90도 돌리기</button>
+      <button id="btnRescan" class="btn small">다시 자동 찾기</button>
+    </div>
+
+    <div class="wm">
+      <label class="check"><input id="optWm" type="checkbox"> 용도 표시 글씨 넣기 (선택)</label>
+      <input id="wmText" class="text-in" type="text" maxlength="60" placeholder="예: OO 제출용 / 날짜 / 타 용도 사용 금지" disabled>
+      <p class="hint">사진 위에 반투명 대각선 글씨로 새겨 넣습니다. 다른 곳에 다시 쓰이는 것을 막는 데 도움이 될 수 있습니다.</p>
+    </div>
+
+    <div class="actions">
+      <button id="btnRestart" class="btn">처음으로</button>
+      <button id="btnToPreview" class="btn primary">다 됐어요, 미리보기</button>
+    </div>
+  </section>
+
+  <!-- 3단계: 미리보기와 저장 -->
+  <section id="stepPreview" class="step" hidden>
+    <h2><span class="num">3</span> 저장 전 마지막 확인</h2>
+    <p class="hint">아래는 실제로 저장될 이미지입니다. 번호가 다 가려졌는지 직접 확인해 주세요.</p>
+    <ul id="trustList" class="trust"></ul>
+    <div id="verifyMsg" class="verify"></div>
+    <img id="previewImg" class="preview" alt="가린 뒤 저장될 이미지 미리보기">
+    <label class="check confirm"><input id="chkConfirm" type="checkbox"> 가려야 할 번호가 모두 검은 칸으로 덮인 것을 확인했습니다.</label>
+    <div class="actions">
+      <button id="btnBack" class="btn">다시 고치기</button>
+      <button id="btnSave" class="btn primary" disabled>이미지 저장</button>
+      <button id="btnShare" class="btn" disabled hidden>공유·사진 앱에 저장</button>
+    </div>
+    <p class="hint">저장되는 이미지는 새로 그린 그림이라 촬영 위치(GPS)·촬영 기기 같은 숨은 정보가 들어가지 않습니다. 원본 사진은 바뀌지 않습니다.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>이 사이트는 사진을 받거나 저장하지 않습니다.</p>
+  <p>자동 인식은 틀릴 수 있습니다. 최종 확인은 본인이 해 주세요.</p>
+  <p>광고·방문 분석 도구를 쓰지 않습니다.</p>
+  <p class="links"><a href="privacy.html">개인정보 처리 안내</a> · <a href="licenses.html">오픈소스 라이선스</a></p>
+</footer>
+
+<script src="vendor/tesseract/tesseract.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

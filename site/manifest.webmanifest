@@ -1,0 +1,11 @@
+{
+  "name": "신분증 번호 가리기",
+  "short_name": "번호 가리기",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#1f2937",
+  "lang": "ko",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

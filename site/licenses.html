@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; connect-src 'none'; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="style.css">
+<title>오픈소스 라이선스</title>
+</head>
+<body>
+<main class="doc">
+<p><a href="./">← 신분증 번호 가리기로 돌아가기</a></p>
+<h1>오픈소스 라이선스</h1>
+<p>이 사이트의 글자 인식 기능은 아래 오픈소스 소프트웨어를 사용합니다. 각 라이선스 전문은 링크된 파일에 있습니다.</p>
+
+<h2>tesseract.js 5.1.1</h2>
+<ul>
+<li>라이선스: Apache License 2.0 (<a href="vendor/tesseract/LICENSE.md">전문</a>)</li>
+<li>저작권자: tesseract.js 기여자 (프로젝트: github.com/naptha/tesseract.js). 배포 패키지에 별도 저작권자 표기는 없습니다.</li>
+<li>사용 파일: vendor/tesseract/tesseract.min.js, vendor/tesseract/worker.min.js</li>
+<li>번들에 포함된 구성요소 고지: <a href="vendor/tesseract/tesseract.min.js.LICENSE.txt">tesseract.min.js.LICENSE.txt</a>, <a href="vendor/tesseract/worker.min.js.LICENSE.txt">worker.min.js.LICENSE.txt</a>
+  <ul>
+  <li>regenerator-runtime — MIT, Copyright (c) 2014-present, Facebook, Inc.</li>
+  <li>buffer — MIT, Feross Aboukhadijeh</li>
+  <li>ieee754 — BSD-3-Clause, Feross Aboukhadijeh</li>
+  <li>zlib.js — MIT, 2012 imaya</li>
+  </ul>
+</li>
+</ul>
+
+<h2>tesseract.js-core 5.1.1</h2>
+<ul>
+<li>라이선스: Apache License 2.0 (<a href="vendor/core/LICENSE">전문</a>)</li>
+<li>저작권자: 패키지 작성자 antimatter15 및 기여자 (프로젝트: github.com/naptha/tesseract.js-core). 배포 패키지에 별도 저작권자 표기는 없습니다.</li>
+<li>사용 파일: vendor/core/tesseract-core-lstm.wasm.js, vendor/core/tesseract-core-simd-lstm.wasm.js (Tesseract OCR 엔진을 웹어셈블리로 변환한 것)</li>
+<li>이 웹어셈블리에는 다음 오픈소스가 함께 컴파일되어 있습니다.
+  <ul>
+  <li>Tesseract OCR — Apache License 2.0 (github.com/tesseract-ocr/tesseract). 원본 저장소에 별도 저작권자 표기는 없습니다.</li>
+  <li>Leptonica — BSD 2-Clause, Copyright (C) 2001-2020 Leptonica. All rights reserved. (github.com/DanBloomberg/leptonica, <a href="vendor/core/LEPTONICA-LICENSE.txt">라이선스 전문</a>)</li>
+  <li>그 밖에 zlib, libpng, libjpeg, libtiff, libwebp, giflib, openlibm — 각 프로젝트 라이선스(구성은 github.com/naptha/tesseract.js-core 의 third_party 참조)</li>
+  </ul>
+</li>
+</ul>
+
+<h2>영어 인식 데이터 (eng.traineddata, 4.0.0_best_int)</h2>
+<ul>
+<li>Tesseract 프로젝트의 tessdata_best 학습 모델(github.com/tesseract-ocr/tessdata_best, Apache License 2.0)을 정수화한 것으로, naptha/tessdata(github.com/naptha/tessdata, Apache License 2.0)에서 npm 패키지 @tesseract.js-data/eng 1.0.0(패키지 표기 MIT, 작성자 Balearica)으로 배포된 파일을 수정 없이 사용합니다.</li>
+<li>라이선스 전문: <a href="vendor/lang/LICENSE">vendor/lang/LICENSE</a> (Apache License 2.0). 원본 저장소에 별도 저작권자 표기는 없습니다.</li>
+<li>사용 파일: vendor/lang/eng.traineddata.gz</li>
+</ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Hostinger(Apache/LiteSpeed)용 설정 - 이 폴더(사이트)에만 해당하도록 필요한 설정을 모두 담음
+
+Options -Indexes
+
+# HTTPS 강제 (SSL을 켠 뒤 작동). 프록시가 https를 알려 주는 경우에는 다시 보내지 않음(무한 반복 방지)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+<IfModule mod_mime.c>
+AddType application/wasm .wasm
+AddType application/manifest+json .webmanifest
+AddType image/svg+xml .svg
+AddType text/javascript .js
+AddType text/plain .txt .markdown
+AddCharset utf-8 .html .css .js .webmanifest .txt .markdown
+</IfModule>
+
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "no-referrer"
+Header always set Permissions-Policy "camera=(self), microphone=(), geolocation=(), payment=(), usb=()"
+Header always set X-Frame-Options "DENY"
+Header always set Cross-Origin-Opener-Policy "same-origin"
+Header always set Strict-Transport-Security "max-age=31536000"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+
+# 페이지·스크립트·스타일은 매번 새 버전 확인(작은 파일)
+<FilesMatch "\.(html|css|js|webmanifest|svg|txt)$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
+</IfModule>
+
+# service worker는 항상 새 버전 확인
+<IfModule mod_headers.c>
+<Files "sw.js">
+Header set Cache-Control "no-cache"
+</Files>
+</IfModule>
+
+# 인식 데이터(.gz)를 브라우저가 자동으로 풀지 않도록 압축 표시를 붙이지 않음(앱이 직접 풂)
+<IfModule mod_mime.c>
+RemoveEncoding .gz
+RemoveType .gz
+AddType application/octet-stream .gz .traineddata
+</IfModule>
