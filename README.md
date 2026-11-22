@@ -11,8 +11,8 @@
 ## 사진이 서버로 가지 않는지 확인하는 방법
 1. **코드**: 화면 동작은 `site/app.js` 하나에 있습니다. 이 파일에는 이미지를 보내는 코드(`fetch`, `XMLHttpRequest`, `sendBeacon`, `WebSocket`)가 없습니다. 직접 검색해 보세요.
 2. **보안 정책(CSP)**: `site/index.html`의 `<meta http-equiv="Content-Security-Policy">`에 `connect-src 'none'`이 있어, 페이지 스크립트가 fetch·XHR·WebSocket 등으로 외부에 데이터를 보낼 수 없습니다. 서버 설정(`site/.htaccess`)의 CSP는 글자 인식 worker와 오프라인 저장(service worker)이 같은 사이트의 인식 파일을 받을 수 있게 `connect-src 'self'`만 허용합니다.
-3. **오프라인 시험**: 한 번 열어 "오프라인 사용 준비됨"이 뜬 뒤 비행기 모드로 바꾸고 새로고침해도 처음부터 끝까지 작동합니다.
-4. **개발자 도구**: 브라우저 개발자 도구의 네트워크 탭에서, 사진을 고른 뒤 외부 주소로 나가는 요청이 없는지 볼 수 있습니다.
+3. **오프라인 시험**: 한 번 열어 "오프라인 사용 준비됨"이 뜬 뒤에는 비행기 모드로 바꾸고 새로고침해도 쓸 수 있게 만들었습니다(인식 엔진·모델 파일 4개가 모두 저장돼야 이 표시가 뜹니다). 사생활 보호 모드이거나 오래 방문하지 않아 브라우저가 저장 공간을 비우면 다시 받아야 합니다.
+4. **개발자 도구**: 브라우저 개발자 도구의 네트워크 탭에서, 사진을 고른 뒤 같은 사이트를 포함해 GET 외의 요청(POST 등)이나 외부 주소로 가는 요청이 없는지 볼 수 있습니다.
 
 ## 구조
 - `site/` — 서버(public_html)에 그대로 올리는 파일입니다. 빌드 과정이 없으며 이 파일들이 원본입니다.
@@ -30,4 +30,4 @@
 
 ---
 
-**English (short)** — A web tool that covers the back digits of a Korean resident registration number on ID photos with solid black boxes, entirely in the browser. Live: https://idcover.kr/ . No upload code in `site/app.js`; the page CSP sets `connect-src 'none'`, so page scripts cannot send data out via fetch/XHR/WebSocket; works offline after the first visit (airplane-mode test). Third-party: tesseract.js / tesseract.js-core (Apache-2.0, includes Leptonica BSD-2-Clause), tessdata_best eng (Apache-2.0). Our code: MIT.
+**English (short)** — A web tool that covers the back digits of a Korean resident registration number on ID photos with solid black boxes, entirely in the browser. Live: https://idcover.kr/ . No upload code in `site/app.js`; the page CSP sets `connect-src 'none'`, so page scripts cannot send data out via fetch/XHR/WebSocket; designed to work offline once "오프라인 사용 준비됨" (offline ready) appears, unless the browser clears site storage (airplane-mode test). Third-party: tesseract.js / tesseract.js-core (Apache-2.0, includes Leptonica BSD-2-Clause), tessdata_best eng (Apache-2.0). Our code: MIT.

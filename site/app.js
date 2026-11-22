@@ -64,7 +64,15 @@
     try {
       // 서비스 워커 설치가 끝나기를 무한정 기다리지 않고, 1.5초마다 저장 상태를 확인
       const reg = await navigator.serviceWorker.getRegistration();
-      const hit = await caches.match(abs('vendor/lang/eng.traineddata.gz'));
+      // 인식 엔진 두 벌(SIMD판·일반판, 기기에 따라 하나를 씀)과 worker·모델까지 4개가 모두 저장돼야 '준비됨'
+      const BIG = [
+        'vendor/tesseract/worker.min.js',
+        'vendor/core/tesseract-core-simd-lstm.wasm.js',
+        'vendor/core/tesseract-core-lstm.wasm.js',
+        'vendor/lang/eng.traineddata.gz',
+      ];
+      const hits = await Promise.all(BIG.map((p) => caches.match(abs(p))));
+      const hit = hits.every(Boolean);
       if (hit && reg && reg.active) {
         el.textContent = '오프라인 사용 준비됨';
         el.className = 'pill ok';
